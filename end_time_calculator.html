@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>End Time Calculator</title>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/brython@3.11.3/brython.min.js"></script>
+  <style>
+    /* Background & font */
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(0deg, #6a11cb 10%, #c9c1a9 50%);
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      height:100vh;
+      margin:0;
+    }
+
+    /* Calculator card */
+    .box {
+      background:#fff;
+      border-radius:15px;
+      padding:30px;
+      width:350px;
+      box-shadow:0 20px 50px rgba(0,0,0,0.2);
+      text-align:center;
+    }
+
+    h2 {
+      margin-bottom:10px;
+      color:#333;
+    }
+
+    p {
+      font-size:14px;
+      color:#555;
+      margin-bottom:20px;
+    }
+
+    label {
+      display:block;
+      text-align:left;
+      margin-top:15px;
+      color:#333;
+      font-weight:500;
+    }
+
+    input {
+      width:100%;
+      padding:10px;
+      margin-top:5px;
+      border-radius:8px;
+      border:1px solid #ccc;
+      font-size:16px;
+      transition:0.3s;
+    }
+
+    input:focus {
+      border-color:#2575fc;
+      outline:none;
+      box-shadow:0 0 5px rgba(37,117,252,0.5);
+    }
+
+    button {
+      margin-top:20px;
+      width:100%;
+      padding:12px;
+      font-size:16px;
+      border-radius:10px;
+      border:none;
+      background:#2575fc;
+      color:white;
+      font-weight:600;
+      cursor:pointer;
+      transition:0.3s;
+    }
+
+    button:hover {
+      background:#6a11cb;
+    }
+
+    .result {
+      margin-top:20px;
+      padding:12px;
+      border-radius:10px;
+      background:#f0f4ff;
+      font-weight:600;
+      color:#333;
+      min-height:30px;
+    }
+
+    .error {
+      background:#ffe6e6;
+      color:#b00;
+    }
+  </style>
+</head>
+<body onload="brython()">
+  <div class="box">
+    <h2>End Time Calculator</h2>
+    <p>Calculate the ending time of your event based on starting hour, minute, and duration.</p>
+
+    <label>Starting hour (0–23)</label>
+    <input id="hour" type="number" min="0" max="23" value="10">
+
+    <label>Starting minute (0–59)</label>
+    <input id="minute" type="number" min="0" max="59" value="30">
+
+    <label>Duration (minutes)</label>
+    <input id="duration" type="number" min="0" value="75">
+
+    <button id="calc">Calculate End Time</button>
+    <div id="result" class="result">End time will appear here</div>
+  </div>
+
+  <script type="text/python">
+    from browser import document
+
+    def calc(ev=None):
+        res = document["result"]
+        try:
+            hour = int(document["hour"].value)
+            minute = int(document["minute"].value)
+            duration = int(document["duration"].value)
+
+            # Validation
+            if not (0 <= hour <= 23):
+                raise ValueError("Starting hour must be between 0 and 23.")
+            if not (0 <= minute <= 59):
+                raise ValueError("Starting minute must be between 0 and 59.")
+            if duration < 0:
+                raise ValueError("Duration cannot be negative.")
+
+            total = hour*60 + minute + duration
+            h = (total // 60) % 24
+            m = total % 60
+            res.class_name = "result"
+            res.text = f"End time: {h:02d}:{m:02d}"
+
+        except ValueError as e:
+            res.class_name = "result error"
+            res.text = str(e)
+        except Exception:
+            res.class_name = "result error"
+            res.text = "Invalid input! Please check your values."
+
+    document["calc"].bind("click", calc)
+
+    # Enter key triggers calculation
+    for input_id in ["hour","minute","duration"]:
+        document[input_id].bind("keydown", lambda ev, f=calc: f() if ev.key=="Enter" else None)
+  </script>
+</body>
+</html>
